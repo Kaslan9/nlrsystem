@@ -15,7 +15,7 @@ surface.CreateFont( "TestFont", {
 	additive = false,
 	outline = false,
 } )
-kclient = {}
+local kclient = {}
 
 hook.Add("Initialize","SetUpClient", function()
 

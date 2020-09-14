@@ -1,4 +1,4 @@
-k = {}
+local k = {}
 hook.Add("Initialize","SetupArrays", function()
 
 	print([[
