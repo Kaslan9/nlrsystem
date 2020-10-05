@@ -16,6 +16,7 @@ surface.CreateFont( "TestFont", {
 	outline = false,
 } )
 local kclient = {}
+local perms = {"owner", "headadmin", "admin", "developer","superadmin"}
 
 hook.Add("Initialize","SetUpClient", function()
 
@@ -29,14 +30,14 @@ hook.Add("Initialize","SetUpClient", function()
 		kclient.TargetNLRStatus = nil
 end)
 
-function kboard.CheckForAdmin()
-	return table.HasValue({"owner", "headadmin", "admin", "developer","superadmin"}, LocalPlayer():GetNWString("usergroup"))
+function kclient.CheckForAdmin(ply)
+	return perms[ply:GetUserGroup()]
 end
 
 hook.Add("PostPlayerDraw", "DrawNLRTime", function(ply)
 
-	if ( !IsValid(ply) || ply == LocalPlayer() || !ply:Alive() ) then return end
-	if !kboard.CheckForAdmin() then return end
+	if ( !IsValid(ply) || ply != LocalPlayer() || !ply:Alive() ) then return end
+	if ! kclient.CheckForAdmin(ply) then return end
 
 	local tr = util.GetPlayerTrace( LocalPlayer() )
 	local trace = util.TraceLine( tr )
@@ -55,8 +56,8 @@ hook.Add("PostPlayerDraw", "DrawNLRTime", function(ply)
 	if !kclient.TargetNLRStatus then return end
 
 	if ply == targetply then
-		local dist = LocalPlayer():GetPos():Distance( ply:GetPos() )
-		if dist > 200 then return end 
+		local dist = LocalPlayer():GetPos():DistToSqr(ply:GetPos())
+		if (dist > 40000) then return end 
 		
 
 		local offset = Vector( 0, 0, 85 )
@@ -75,21 +76,22 @@ hook.Add("PostPlayerDraw", "DrawNLRTime", function(ply)
 	end
 end)
 
+local scrH = ScrH()
+local scrW = ScrW()
+local xwidth  = 196
+local yheight = 64
+
 hook.Add("HUDPaint", "DrawHUDNLR", function()
 
 	if CurTime() - 1 > kclient.localcurtime then
 		kclient.localcurtime = CurTime()
 		kclient.PlayerNLRStatus = LocalPlayer():GetNWBool("NLRStatus")
 		kclient.PlayerNLRTimer  = LocalPlayer():GetNWInt("NLRTimer")
-
 	end
 
 	if !kclient.PlayerNLRStatus then return end
 
-	local scrH = ScrH()
-	local scrW = ScrW()
-	local xwidth  = 196
-	local yheight = 64
+
 	surface.SetDrawColor( 64,64,64, 255 )
 	surface.DrawRect( ScrW()/2 - xwidth/2, 30, xwidth, yheight )
 
